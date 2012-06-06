@@ -11,7 +11,7 @@ import re
 BITBUCKET_FOLDER = "./"
 AUTHORS_FILE = "users.txt"
 apps = {"survey":"git@bitbucket.org:edlab/apps-survey-sidekick.git"}
-
+LINE_BUFFERED = 1
 # get a unique ID for this 
 i = 0
 path = BITBUCKET_FOLDER+"ID"
@@ -31,8 +31,8 @@ class NullConsumer(object):
 
 def exec_command(command, consumer = NullConsumer()):
     print("[[%s]]\n"%command)
-    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    proc.wait()
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=LINE_BUFFERED)
+    proc.communicate()
     consumer.begin()
     for line in proc.stdout:
         sys.stdout.write(line)

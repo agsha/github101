@@ -114,11 +114,13 @@ def tar():
     
     
     
-    
+def dummy():
+    print "please enter a method name to run like so: python Test.py main" 
+       
 if __name__ == '__main__':
     method = 'main'
     if len(sys.argv) > 1 :
         method = sys.argv[1] 
         globals()[sys.argv[1]]()
     else:
-        main()    
+        dummy()    

@@ -20,10 +20,10 @@ f = open(path, "w")
 f.writelines(str(i+1))
 f.close()
 
-def nop(stdout, stderr):
+def nop(out, err, returncode):
     pass
 
-def exec_command(command, log=False, processor = nop):
+def exec_command(command, log=False, processor = nop, errorcheck=True):
     if log : 
         route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee err ) 3>&1 1>&2 | tee -a stdout.txt | tee out"%command
     else:
@@ -31,8 +31,22 @@ def exec_command(command, log=False, processor = nop):
     print("[[%s]]\n"%route)
     proc = subprocess.Popen(route, shell=True)
     proc.wait()
-    return processor(out=open("out"), err=open("err"), proc.returncode)
+    if errorcheck:
+        if proc.returncode!=0:
+            raise Exception("return code is not zero")
+        for l in open("err") :
+            raise Exception("Error file not empty")
+    return processor(out=open("out"), err=open("err"), returncode=proc.returncode)
 
+def getdirs(out, err, returncode):
+    l = []
+    p = re.compile("^d[\S]*[\s]+[\S]*[\s]+[\S]*[\s]+[\S]*[\s]+[\S]*[\s]+[\S]*[\s]+[\S]*[\s]+(?P<dir>.*)$")
+    for line in out:
+        m = p.match(line)
+        if m!=None:
+            l.append( m.group("dir"))
+    return l        
+    
 def MissingAuthorConsumer(out, err, returncode):
     m = None
     pat = re.compile(r"^\n?Author: (?P<author>[a-zA-Z0-9_-]*) not defined in [a-zA-Z0-9/\.]* file\n?$")
@@ -51,7 +65,12 @@ def RemoteAdded(out, err, returncode):
     if returncode!=0:
         raise Exception("Command failed")
     return False
-   
+
+def populategoogleexcel():
+    p = os.path.abspath("/home/sha/bitbucket")
+    l = exec_command("ls -l %s | grep ^d" % p, processor=getdirs)
+    for d in l:
+        pp = os.path.join(p, d, ".git")
 def main():
     for app in apps :
         folder = os.path.join(BITBUCKET_FOLDER, app)
@@ -59,15 +78,15 @@ def main():
         print "printing folderrr" + folder
         print "prinnting git" + os.path.join(folder, ".git/")
         if not os.path.exists(folder) :
-            exec_command("mkdir %s" % folder)
+            exec_command("mkdir %s" % folder, errorcheck = False)
         os.chdir(folder)
         open(AUTHORS_FILE, "a").close()
         while True:
             try:
                 if not os.path.exists(os.path.join(folder, ".git/")) :
-                    author = exec_command("git svn clone svn+ssh://sha@admin-edlab.tc.columbia.edu/var/svn/%s --authors-file=%s --no-metadata -s %s"%(app, AUTHORS_FILE, folder), processor=MissingAuthorConsumer)
+                    author = exec_command("git svn clone svn+ssh://sha@admin-edlab.tc.columbia.edu/var/svn/%s --authors-file=%s --no-metadata -s %s"%(app, AUTHORS_FILE, folder), errorcheck=False, processor=MissingAuthorConsumer)
                 else :
-                    author = exec_command("git svn fetch", processor=MissingAuthorConsumer)
+                    author = exec_command("git svn fetch", errorcheck = False, processor=MissingAuthorConsumer)
             except Exception:
                 pass
             authorsFile = open(AUTHORS_FILE, "a")

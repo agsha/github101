@@ -9,7 +9,7 @@ import re
 
 BITBUCKET_FOLDER = os.path.abspath(".")
 AUTHORS_FILE = os.path.join(BITBUCKET_FOLDER, "users.txt")
-apps = {"django-lib":"git@bitbucket.org:edlab/apps-django-cas.git"}
+apps = {"researched":"git@bitbucket.org:edlab/apps-research-broker.git"}
 LINE_BUFFERED = 1
 # get a unique ID for this 
 i = 0
@@ -20,10 +20,7 @@ f = open(path, "w")
 f.writelines(str(i+1))
 f.close()
 
-def nop(out, err, returncode):
-    pass
-
-def exec_command(command, log=False, processor = nop, errorcheck=True):
+def exec_command(command, log=False, errorcheck=True):
     if log : 
         route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee err ) 3>&1 1>&2 | tee -a stdout.txt | tee out"%command
     else:
@@ -36,7 +33,7 @@ def exec_command(command, log=False, processor = nop, errorcheck=True):
             raise Exception("return code is not zero")
         for l in open("err") :
             raise Exception("Error file not empty")
-    return processor(out=open("out"), err=open("err"), returncode=proc.returncode)
+    return (open("out"), open("err"), proc.returncode)
 
 def getdirs(out, err, returncode):
     l = []
@@ -60,17 +57,31 @@ def RemoteAdded(out, err, returncode):
     for line in out:
         if line.startswith("origin"):
             return True
-    for line in err :
-        raise Exception("Command failed")
-    if returncode!=0:
-        raise Exception("Command failed")
     return False
+
+
+def _updateexcel(dir):
+  pass
+
 
 def populategoogleexcel():
     p = os.path.abspath("/home/sha/bitbucket")
-    l = exec_command("ls -l %s | grep ^d" % p, processor=getdirs)
+    l = getdirs(*exec_command("ls -l %s | grep ^d" % p))
+    
     for d in l:
-        pp = os.path.join(p, d, ".git")
+        os.chdir(os.path.join(p, d))
+        if RemoteAdded(*exec_command("git remote -v")):
+            _updateexcel(dir=d)
+
+def isNull(string):
+  if string == "":
+    return False
+  else: 
+    return True
+  
+
+
+        
 def main():
     for app in apps :
         folder = os.path.join(BITBUCKET_FOLDER, app)
@@ -84,26 +95,29 @@ def main():
         while True:
             try:
                 if not os.path.exists(os.path.join(folder, ".git/")) :
-                    author = exec_command("git svn clone svn+ssh://sha@admin-edlab.tc.columbia.edu/var/svn/%s --authors-file=%s --no-metadata -s %s"%(app, AUTHORS_FILE, folder), errorcheck=False, processor=MissingAuthorConsumer)
+                    author = MissingAuthorConsumer(*exec_command("git svn clone svn+ssh://sha@admin-edlab.tc.columbia.edu/var/svn/%s --authors-file=%s --no-metadata -s %s"%(app, AUTHORS_FILE, folder), errorcheck=False,))
                 else :
-                    author = exec_command("git svn fetch", errorcheck = False, processor=MissingAuthorConsumer)
+                    author = MissingAuthorConsumer(*exec_command("git svn fetch", errorcheck = False))
             except Exception:
                 pass
+            if author is None or len(author) == 0:
+                break
+
             authorsFile = open(AUTHORS_FILE, "a")
             authorsFile.writelines("%s = %s <edlabit+%s@tc.columbia.edu>\n"%(author, author, author))
             authorsFile.close()
-        try :
-            exec_command("cp -Rf .git/refs/remotes/tags/* .git/refs/tags/")
-        except Exception:
-            pass
-        try :
-            exec_command("find .git/refs/remotes/ -type f -not  -name  *trunk*   -exec mv {} .git/refs/heads/ \;")
-        except Exception:
-            pass
-        good = exec_command("git remote -v", consumer = RemoteAdded)
+        exec_command("cp -Rf .git/refs/remotes/tags/* .git/refs/tags/", errorcheck=False)
+        exec_command("find .git/refs/remotes/ -type f -not  -name  *trunk*   -exec mv {} .git/refs/heads/ \;", errorcheck=False)
+        good = RemoteAdded(*exec_command("git remote -v"))
         if good != True:
             exec_command("git remote add origin %s"%apps[app])
-        exec_command("git push origin --all")
+            
+        val = exec_command("git push origin --all", errorcheck=False)
+        for l in val[1]:
+            if re.match("^[\w]*Everything up-to-date[\w]*$", l) is None:
+                raise Exception("Error occured in git push origin --all")
+        
+
 
 def tar():
     tardir = os.path.join(os.path.abspath("/home/sha/"), "tar")

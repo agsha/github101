@@ -8,6 +8,8 @@ import subprocess
 import re
 
 BITBUCKET_FOLDER = os.path.abspath(".")
+ERR = os.path.join(os.getcwd(), "err")
+OUT = os.path.join(os.getcwd(), "out")
 AUTHORS_FILE = os.path.join(BITBUCKET_FOLDER, "users.txt")
 apps = {"researched":"git@bitbucket.org:edlab/apps-research-broker.git"}
 LINE_BUFFERED = 1
@@ -22,7 +24,7 @@ f.close()
 
 def exec_command(command, log=False, errorcheck=True):
     if log : 
-        route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee err ) 3>&1 1>&2 | tee -a stdout.txt | tee out"%command
+        route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee %s ) 3>&1 1>&2 | tee -a stdout.txt | tee %s"%(command, ERR, OUT)
     else:
         route = "(%s 2>&1 1>&3 | tee err ) 3>&1 1>&2 | tee out"%command
     print("[[%s]]\n"%route)

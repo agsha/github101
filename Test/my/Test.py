@@ -11,7 +11,7 @@ BITBUCKET_FOLDER = os.path.abspath(".")
 ERR = os.path.join(os.getcwd(), "err")
 OUT = os.path.join(os.getcwd(), "out")
 AUTHORS_FILE = os.path.join(BITBUCKET_FOLDER, "users.txt")
-apps = {"researched":"git@bitbucket.org:edlab/apps-research-broker.git"}
+apps = {"pundit_plus":"git@bitbucket.org:edlab/apps-pundit.git"}
 LINE_BUFFERED = 1
 # get a unique ID for this 
 i = 0
@@ -51,9 +51,13 @@ def MissingAuthorConsumer(out, err, returncode):
     pat = re.compile(r"^\n?Author: (?P<author>[a-zA-Z0-9_-]*) not defined in [a-zA-Z0-9/\.]* file\n?$")
     for line in err:
         m = pat.match(line)
+        break
     if (m == None and returncode!=0):
         raise Exception("[[script]] Command failed.")
-    return m
+    if m is not None:
+      return m.group("author")
+    else:
+      return m
 
 def RemoteAdded(out, err, returncode):
     for line in out:

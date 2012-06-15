@@ -6,6 +6,10 @@ Created on Apr 23, 2012
 import os, sys
 import subprocess
 import re
+import os.path
+from os.path import join
+from os.path import abspath
+import sheet
 
 BITBUCKET_FOLDER = os.path.abspath(".")
 ERR = os.path.join(os.getcwd(), "err")
@@ -70,15 +74,6 @@ def _updateexcel(dir):
   pass
 
 
-def populategoogleexcel():
-    p = os.path.abspath("/home/sha/bitbucket")
-    l = getdirs(*exec_command("ls -l %s | grep ^d" % p))
-    
-    for d in l:
-        os.chdir(os.path.join(p, d))
-        if RemoteAdded(*exec_command("git remote -v")):
-            _updateexcel(dir=d)
-
 def isNull(string):
   if string == "":
     return False
@@ -124,6 +119,20 @@ def main():
                 raise Exception("Error occured in git push origin --all")
         
 
+def report():
+  userid = raw_input("userid:\n")
+  pw = raw_input("password:\n")
+  obj = sheet.SimpleCRUD(userid, pw)
+  for row in range(2,49):
+    dr = obj.get(row=row, col=1)
+    exists = os.path.exists(join(abspath("/home/sha/bitbucket2"), dr, ".git"))
+    if exists:
+      print "Y for %s"%dr
+      obj.update(row=row, col=3, val="Y")
+    else:
+      print "N for %s"%dr
+      
+  
 
 def tar():
     tardir = os.path.join(os.path.abspath("/home/sha/"), "tar")

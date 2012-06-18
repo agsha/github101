@@ -29,16 +29,16 @@ def exec_command(command, log=False, errorcheck=True):
     if log : 
         route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee %s ) 3>&1 1>&2 | tee -a stdout.txt | tee %s"%(command, ERR, OUT)
     else:
-        route = "(%s 2>&1 1>&3 | tee err ) 3>&1 1>&2 | tee out"%command
+        route = "(%s 2>&1 1>&3 | tee %s ) 3>&1 1>&2 | tee %s"%(command, ERR, OUT)
     print("[[%s]]\n"%route)
     proc = subprocess.Popen(route, shell=True)
     proc.wait()
     if errorcheck:
         if proc.returncode!=0:
             raise Exception("return code is not zero")
-        for l in open("err") :
+        for l in open(ERR) :
             raise Exception("Error file not empty")
-    return (open("out"), open("err"), proc.returncode)
+    return (open(OUT), open(ERR), proc.returncode)
 
 def getdirs(out, err, returncode):
     l = []

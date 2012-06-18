@@ -33,11 +33,10 @@ def exec_command(command, log=False, errorcheck=True):
     print("[[%s]]\n"%route)
     proc = subprocess.Popen(route, shell=True)
     proc.wait()
-    if errorcheck:
-        if proc.returncode!=0:
-            raise Exception("return code is not zero")
-        for l in open(ERR) :
-            raise Exception("Error file not empty")
+    if errorcheck and proc.returncode!=0:
+        raise Exception("return code is not zero")
+    for l in open(ERR) :
+        print "WARNING: error file not empty: %s"%l
     return (open(OUT), open(ERR), proc.returncode)
 
 def getdirs(out, err, returncode):

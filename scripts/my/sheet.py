@@ -26,7 +26,8 @@ import gdata.spreadsheet.service
 import getopt
 import string
 import sys
-
+import os
+from os.path import join, abspath
 
 class SimpleCRUD:
 
@@ -190,6 +191,18 @@ def main():
   sample = SimpleCRUD("username", "password")
   #sample.Run()
 
+def report():
+  userid = raw_input("userid:\n")
+  pw = raw_input("password:\n")
+  obj = SimpleCRUD(userid, pw)
+  for row in range(2,49):
+    dr = obj.get(row=row, col=1)
+    exists = os.path.exists(join(abspath("/home/sha/bitbucket2"), dr, ".git"))
+    if exists:
+      print "Y for %s"%dr
+      obj.update(row=row, col=3, val="Y")
+    else:
+      print "N for %s"%dr
 
 if __name__ == '__main__':
   main()

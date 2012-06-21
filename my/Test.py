@@ -7,8 +7,22 @@ import os, sys
 import subprocess
 import re
 import os.path
+import __builtin__
 from os.path import join
 from os.path import abspath
+
+class Unbuffered:
+    def __init__( self, stream ):
+        self.stream = stream
+    def write( self, data ):
+        self.stream.write( data )
+        self.stream.flush()
+    def __getattr__( self, attr ):
+        return getattr( self.stream, attr )
+sys.stdout=Unbuffered(sys.stdout)
+
+def open(filename, mode="r"):
+    return Unbuffered(__builtin__.open(filename, mode))
 
 BITBUCKET_FOLDER = os.path.abspath(".")
 ERR = os.path.join(os.getcwd(), "err")
@@ -16,7 +30,7 @@ OUT = os.path.join(os.getcwd(), "out")
 AUTHORS_FILE = os.path.join(BITBUCKET_FOLDER, "users.txt")
 apps = {
 #        "configurations":"git clone git@bitbucket.org:edlab/unknown-configurations.git",
-#        "documentation": "git@bitbucket.org:edlab/unknown-documentation.git",
+         "documentation": "git@bitbucket.org:edlab/unknown-documentation.git",
 #        "eddais":"git@bitbucket.org:edlab/apps-eddais.git",
 #        "edlabauth":"git@bitbucket.org:edlab/apps-edlab-cas.git",
 #        "identity": "git@bitbucket.org:edlab/apps-cas-main-code.git",
@@ -27,14 +41,13 @@ apps = {
 #        #"ojs":"",
 #        #"slms":"",
 #        #"tclibrary":"",
-#        "tcrsearch":"git@bitbucket.org:edlab/publications-tc-record.git",
+          "tcrsearch":"git@bitbucket.org:edlab/publications-tc-record.git",
 #        "timesheet":"git@bitbucket.org:edlab/library-time-sheet-tool.git",
 #        "twitterSymposium":"git@bitbucket.org:edlab/library-twitter-symposium.git",
 #        "young_arts":"git@bitbucket.org:edlab/publications-young-arts-website.git",
 #        "NLT_CMS":"git@bitbucket.org:edlab/new-learning-times-cms.git",
 #        #"plugins":"",
         }
-LINE_BUFFERED = 1
 # get a unique ID for this 
 i = 0
 path = BITBUCKET_FOLDER+"ID"

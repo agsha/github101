@@ -29,11 +29,9 @@ def mySqlToDownloadsDir():
     url = MYSQL_32_URL
     if is64Bit():
         url = MYSQL_64_URL
-    ret = ex("curl -o mysql-5.5.25-osx10.6-x86_64.tar.gz -L %s"%url, errorcheck=False)
-    for l in ret[1]:
-        print "errorsdf %s"%l
+    ex("curl -o mysql-5.5.25-osx10.6-x86_64.tar.gz -L %s"%url)
     ex("sudo tar xvzf mysql-5.5.25-osx10.6-x86_64.tar.gz -C %s"%USR_LOCAL)
-    ex("sudo ln -s mysql-5.5.25-osx10.6-x86_64.tar.gz %s/mysql"%USR_LOCAL)
+    ex("sudo ln -s %s/mysql-5.5.25-osx10.6-x86_64.tar.gz %s/mysql"%(USR_LOCAL, USR_LOCAL))
 
 if __name__ == '__main__':
     mySqlToDownloadsDir()

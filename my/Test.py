@@ -50,18 +50,19 @@ apps = {
         }
 # get a unique ID for this 
 i = 0
-path = BITBUCKET_FOLDER+"ID"
-if os.path.exists(path):
-    i = int(open(path).readline())
-f = open(path, "w")
-f.writelines(str(i+1))
-f.close()
+def generateUniqueId():
+    path = BITBUCKET_FOLDER+"ID"
+    if os.path.exists(path):
+        i = int(open(path).readline())
+    f = open(path, "w")
+    f.writelines(str(i+1))
+    f.close()
 
 def exec_command(command, log=False, errorcheck=True):
     if log : 
-        route = "(%s 2>&1 1>&3 | tee -a stderr.txt | tee %s ) 3>&1 1>&2 | tee -a stdout.txt | tee %s"%(command, ERR, OUT)
+        route = "((%s) 2>&1 1>&3 | tee -a stderr.txt | tee %s ) 3>&1 1>&2 | tee -a stdout.txt | tee %s"%(command, ERR, OUT)
     else:
-        route = "(%s 2>&1 1>&3 | tee %s ) 3>&1 1>&2 | tee %s"%(command, ERR, OUT)
+        route = "((%s) 2>&1 1>&3 | tee %s ) 3>&1 1>&2 | tee %s"%(command, ERR, OUT)
     print("[[%s]]\n"%route)
     proc = subprocess.Popen(route, shell=True)
     proc.wait()

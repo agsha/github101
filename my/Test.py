@@ -58,19 +58,24 @@ def generateUniqueId():
     f.writelines(str(i+1))
     f.close()
 
-def exec_command(command, log=False, errorcheck=True):
+def exec_command(command, log=False, errorcheck=True, dryrun=False):
+    if dryrun:
+        print "[[DRYRUN]]"
     if log : 
         route = "((%s) 2>&1 1>&3 | tee -a stderr.txt | tee %s ) 3>&1 1>&2 | tee -a stdout.txt | tee %s"%(command, ERR, OUT)
     else:
         route = "((%s) 2>&1 1>&3 | tee %s ) 3>&1 1>&2 | tee %s"%(command, ERR, OUT)
     print("[[%s]]\n"%route)
-    proc = subprocess.Popen(route, shell=True)
-    proc.wait()
-    if errorcheck and proc.returncode!=0:
-        raise Exception("return code is not zero")
+    returncode = 0
+    if dryrun==False:
+        proc = subprocess.Popen(route, shell=True)
+        proc.wait()
+        returncode = proc.returncode
+        if errorcheck and proc.returncode!=0:
+            raise Exception("return code is not zero")
     for l in open(ERR) :
         print "WARNING: error file not empty: %s"%l
-    return (open(OUT), open(ERR), proc.returncode)
+    return (open(OUT), open(ERR), returncode)
 
 def getdirs(out, err, returncode):
     l = []
@@ -158,6 +163,8 @@ def tar():
         exec_command("tar -cvf %s %s"%(os.path.join(tardir, dr+".tar"), os.path.join("/var/trac/sites/", dr)))
     
     
+def test():
+    print os.path.dirname( os.path.realpath( __file__ ) )
     
 def dummy():
     print "please enter a method name to run like so: python Test.py main" 

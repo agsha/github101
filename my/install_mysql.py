@@ -8,6 +8,7 @@ from Test import exec_command as ex
 from os.path import join, abspath
 from os import chdir, getcwd
 import re
+from string import strip
 import os
 from os.path import expanduser
 DOWNLOAD_DIR = abspath(expanduser("~/Downloads"))
@@ -24,6 +25,15 @@ def is64Bit():
         else:
             raise Exception("Cant detect if cpu is 32 bit or 64 bit")
 
+def _createUser():
+    for line in ex("whoami")[0]:
+        user = strip(line)
+        
+    ex("mysql -u root --execute \"create user '%s'@'localhost'\""%user)
+    ex("mysqladmin --user=root create vialogues")
+    ex("mysql -u root --execute \"GRANT ALL ON vialogues.* TO '%s'@'localhost';\""%user)
+    pass
+
 def mySqlToDownloadsDir():
     chdir(DOWNLOAD_DIR)
     url = MYSQL_32_URL
@@ -32,6 +42,8 @@ def mySqlToDownloadsDir():
     ex("curl -o mysql-5.5.25-osx10.6-x86_64.tar.gz -L %s"%url)
     ex("sudo tar xvzf mysql-5.5.25-osx10.6-x86_64.tar.gz -C %s"%USR_LOCAL)
     ex("sudo ln -s %s/mysql-5.5.25-osx10.6-x86_64.tar.gz %s/mysql"%(USR_LOCAL, USR_LOCAL))
+    ex('echo "export PATH=\\$PATH:%s" >> ~/.profile'%(join(USR_LOCAL, "mysql", "bin")))
+    ex('echo "export DYLD_LIBRARY_PATH=%s/mysql/lib/" >> ~/.profile'%USR_LOCAL)
 
 if __name__ == '__main__':
-    mySqlToDownloadsDir()
+    _createUser()

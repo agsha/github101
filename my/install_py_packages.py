@@ -37,8 +37,8 @@ def _installPyCrypto():
 
 def _installSimpleJson():
     exec_command("sudo pip install simplejson")
-    
-if __name__ == '__main__':
+
+def main():    
     _installDjango()
     _installHayStack()
     _installMySqlDb()
@@ -46,3 +46,7 @@ if __name__ == '__main__':
     _installBoto()
     _installPiston()
     _installSimpleJson()
+    _installPyCrypto()
+
+if __name__ == '__main__':
+    main()

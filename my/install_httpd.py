@@ -29,7 +29,9 @@ def _extractHttpd():
     exec_command("%s --prefix=%s"%(join(DOWNLOAD_DIR, HTTPD_DIR, "configure"), join(USR_LOCAL, "apache2")))
     exec_command("make")
     exec_command("sudo make install")
-    exec_command('echo "export PATH=\\$PATH:%s" >> ~/.profile'%(join(USR_LOCAL, "apache2", "bin")))
+    exec_command('echo "export PATH=%s:\\$PATH" >> ~/.profile'%(join(USR_LOCAL, "apache2", "bin")))
+    exec_command('echo "alias rs=\\"sudo /usr/local/apache2/bin/apachectl -k  restart\\"" >> ~/.profile')
+
     
     
 
@@ -44,7 +46,7 @@ def _extractPcre():
     exec_command("%s --prefix=%s"%(join(DOWNLOAD_DIR, PCRE_DIR, "configure"), join(USR_LOCAL, PCRE_DIR)))
     exec_command("make")
     exec_command("sudo make install")
-    exec_command('echo "export PATH=\\$PATH:%s" >> ~/.profile'%join(USR_LOCAL, PCRE_DIR, "bin"))
+    exec_command('echo "export PATH=%s:\\$PATH" >> ~/.profile'%join(USR_LOCAL, PCRE_DIR, "bin"))
 
 def _downloadModWsgi():
     chdir(DOWNLOAD_DIR)
@@ -58,11 +60,13 @@ def _extractModWsgi():
     exec_command("sudo make install")
     
     
-
-if __name__ == '__main__':
+def main():
     _downloadPcre()
     _extractPcre()
     downloadHttpd()
     _extractHttpd()
     _downloadModWsgi()
     _extractModWsgi()
+
+if __name__ == '__main__':
+    main()

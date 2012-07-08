@@ -17,6 +17,11 @@ def _installVirtualEnv():
     #FIXME: port for linux also
     chdir("/Library/Python/2.7/site-packages")
     exec_command("python virtualenv.py ~/ENV")
+    exec_command('echo "source ~/ENV/bin/activate" >> ~/.profile')
+
     
-if __name__ == '__main__':
+def main():
     _installVirtualEnv()
+
+if __name__ == '__main__':
+    main()

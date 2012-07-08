@@ -24,7 +24,10 @@ def _extractPip():
     exec_command("tar xvzf pip-1.1.tar.gz -C %s"%DOWNLOAD_DIR)
     chdir(join(DOWNLOAD_DIR, PIP_DIR))
     exec_command("sudo python setup.py install")
-    
-if __name__ == '__main__':
+
+def main():    
     _downloadPip()
     _extractPip()
+
+if __name__ == '__main__':
+    main()

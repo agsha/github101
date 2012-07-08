@@ -45,5 +45,8 @@ def mySqlToDownloadsDir():
     ex('echo "export PATH=\\$PATH:%s" >> ~/.profile'%(join(USR_LOCAL, "mysql", "bin")))
     ex('echo "export DYLD_LIBRARY_PATH=%s/mysql/lib/" >> ~/.profile'%USR_LOCAL)
 
-if __name__ == '__main__':
+def main():
     _createUser()
+
+if __name__ == '__main__':
+    main()

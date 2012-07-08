@@ -19,8 +19,9 @@ def _installHayStack():
     exec_command("sudo pip install django-haystack")
 
 def _installMySqlDb():
+    exec_command('echo "export PATH=%s:\\$PATH" >> ~/.profile'%(join(USR_LOCAL, "mysql", "bin")))
+    #exec_command("sudo ln -s /usr/local/mysql/lib/libmysqlclient.18.dylib /usr/lib/libmysqlclient.18.dylib")
     exec_command("sudo pip install MySQL-python")
-    exec_command("sudo ln -s /usr/local/mysql/lib/libmysqlclient.18.dylib /usr/lib/libmysqlclient.18.dylib")
 
 def _installPySolr():
     exec_command("sudo pip install pysolr")

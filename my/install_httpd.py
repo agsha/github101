@@ -52,14 +52,17 @@ def _downloadModWsgi():
     #exec_command("curl -o mod_wsgi-3.3.tar.gz -L %s"%MOD_WSGI_URL)
 
 def _extractModWsgi():
-    chdir(join(DOWNLOAD_DIR, MOD_WSGI_DIR))
-    exec_command("sudo configure --with-apxs=%s"%join(USR_LOCAL, "apache2/bin/apxs"))
+    chdir(join(DOWNLOAD_DIR, MOD_WSGI_DIR, MOD_WSGI_DIR))
+    exec_command("sudo ./configure --with-apxs=%s"%join(USR_LOCAL, "apache2/bin/apxs"))
     exec_command("make")
     exec_command("sudo make install")
     
     
 
 if __name__ == '__main__':
-    #downloadHttpd()
+    _downloadPcre()
+    _extractPcre()
+    downloadHttpd()
+    _extractHttpd()
     _downloadModWsgi()
     _extractModWsgi()

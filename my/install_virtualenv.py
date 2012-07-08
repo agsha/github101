@@ -18,6 +18,7 @@ def _installVirtualEnv():
     chdir("/Library/Python/2.7/site-packages")
     exec_command("python virtualenv.py ~/ENV")
     exec_command('echo "source ~/ENV/bin/activate" >> ~/.profile')
+    exec_command("source ~/ENV/bin/activate")
 
     
 def main():

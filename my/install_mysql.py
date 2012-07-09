@@ -28,7 +28,9 @@ def is64Bit():
 def _createUser():
     for line in ex("whoami")[0]:
         user = strip(line)
-        
+    
+    ex('echo "export PATH=%s:\\$PATH" >> ~/.profile'%(join(USR_LOCAL, "mysql", "bin")))
+
     ex("mysql -u root --execute \"create user '%s'@'localhost'\""%user)
     ex("mysqladmin --user=root create vialogues")
     ex("mysql -u root --execute \"GRANT ALL ON vialogues.* TO '%s'@'localhost';\""%user)

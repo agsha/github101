@@ -22,11 +22,14 @@ def _downloadDjangoCas():
     exec_command("git clone git@bitbucket.org:edlab/apps-django-cas.git projects/django.cas")
 
 def _extractVialogues():
-    chdir(join(HOME_DIR, "vialogues_code"))
+    chdir(join(HOME_DIR, "projects", "vialogues_code"))
     exec_command("ln -s django-cas apps/accounts")
     exec_command("touch debug.log")
     exec_command("chmod go+rwx debug.log")
     exec_command("cp settings.py.development settings.py")
+    exec_command("python manage.py syncdb")
+    exec_command("python bootstrap.py")
+    
 
 def main():    
     _downloadDjangoCas()

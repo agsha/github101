@@ -30,7 +30,8 @@ def _createUser():
         user = strip(line)
     
     ex('echo "export PATH=%s:\\$PATH" >> ~/.profile'%(join(USR_LOCAL, "mysql", "bin")))
-
+    ex("sudo ln -s /usr/local/mysql/lib/libmysqlclient.18.dylib /usr/lib/libmysqlclient.18.dylib")
+    ex('echo "export DYLD_LIBRARY_PATH=%s/mysql/lib/" >> ~/.profile'%USR_LOCAL)
     ex("mysql -u root --execute \"create user '%s'@'localhost'\""%user)
     ex("mysqladmin --user=root create vialogues")
     ex("mysql -u root --execute \"GRANT ALL ON vialogues.* TO '%s'@'localhost';\""%user)

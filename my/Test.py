@@ -29,8 +29,9 @@ ERR = os.path.join(os.getcwd(), "err")
 OUT = os.path.join(os.getcwd(), "out")
 AUTHORS_FILE = os.path.join(BITBUCKET_FOLDER, "users.txt")
 apps = {
+         "survey":"git@bitbucket.org:edlab/survey-sidekick4.git",
 #        "configurations":"git clone git@bitbucket.org:edlab/unknown-configurations.git",
-         "documentation": "git@bitbucket.org:edlab/unknown-documentation.git",
+         #"documentation": "git@bitbucket.org:edlab/unknown-documentation.git",
 #        "eddais":"git@bitbucket.org:edlab/apps-eddais.git",
 #        "edlabauth":"git@bitbucket.org:edlab/apps-edlab-cas.git",
 #        "identity": "git@bitbucket.org:edlab/apps-cas-main-code.git",
@@ -41,7 +42,7 @@ apps = {
 #        #"ojs":"",
 #        #"slms":"",
 #        #"tclibrary":"",
-          "tcrsearch":"git@bitbucket.org:edlab/publications-tc-record.git",
+         #"tcrsearch":"git@bitbucket.org:edlab/publications-tc-record.git",
 #        "timesheet":"git@bitbucket.org:edlab/library-time-sheet-tool.git",
 #        "twitterSymposium":"git@bitbucket.org:edlab/library-twitter-symposium.git",
 #        "young_arts":"git@bitbucket.org:edlab/publications-young-arts-website.git",
@@ -86,13 +87,10 @@ def MissingAuthorConsumer(out, err, returncode):
     pat = re.compile(r"^\n?Author: (?P<author>[a-zA-Z0-9_-]*) not defined in [a-zA-Z0-9/\.]* file\n?$")
     for line in err:
         m = pat.match(line)
-        break
-    if (m == None and returncode!=0):
+        if m is not None:
+            return m.group("author")
+    if returncode!=0:
         raise Exception("[[script]] Command failed.")
-    if m is not None:
-        return m.group("author")
-    else:
-        return m
 
 def RemoteAdded(out, err, returncode):
     for line in out:
